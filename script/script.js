@@ -342,7 +342,7 @@ function createTaskElement(task) {
                 <span class="task-category">${escapeHtml(task.category)}</span>
             </div>
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" ${task.completed ? 'checked' : ''}>
+                <input class="form-check-input border border-dark-subtle" type="checkbox" ${task.completed ? 'checked' : ''}>
             </div>
         </div>
         <div class="task-description">
@@ -387,14 +387,18 @@ function createTaskElement(task) {
 function formatTaskDate(date, time) {
     if (!date && !time) return 'Sem data definida';
     
-    const today = new Date().toDateString();
-    const taskDate = new Date(date).toDateString();
-    
-    if (taskDate === today) {
+    // Corrigir parsing de data: manter fuso local
+    const [year, month, day] = date ? date.split('-') : [];
+    const taskDate = date ? new Date(year, month - 1, day) : new Date();
+
+    const today = new Date();
+    const sameDay = taskDate.toDateString() === today.toDateString();
+
+    if (sameDay) {
         return time ? `Hoje, ${time}` : 'Hoje';
     } else {
         const options = { day: 'numeric', month: 'short' };
-        const formattedDate = new Date(date).toLocaleDateString('pt-BR', options);
+        const formattedDate = taskDate.toLocaleDateString('pt-BR', options);
         return time ? `${formattedDate}, ${time}` : formattedDate;
     }
 }
